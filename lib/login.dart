@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdfscanner/home.dart';
 
 import 'cadastro.dart';
 import 'widget/text_form_field.dart';
@@ -46,7 +47,10 @@ class _LoginState extends State<Login> {
                     ),
                     TextButton(onPressed: (){}, child: Text('Esqueceu a senha?',style: TextStyle(color: Colors.blueGrey[200]),)),
 
-                    ElevatedButton(onPressed: (){}, child: const Text('Login',style: TextStyle(color: Colors.blueGrey),)),
+                    ElevatedButton(onPressed: (){
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => Home()));
+
+                    }, child: const Text('Login',style: TextStyle(color: Colors.blueGrey),)),
                     TextButton(onPressed: cadastro, child: Text('Cadastre-se aqui'))
                   ],
                 ),
