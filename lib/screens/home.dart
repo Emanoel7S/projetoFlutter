@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -25,6 +26,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _path = '';
+    preferecnias();
+
     _requestPermissions();
   }
   // Future<void> _pickAndCropImage() async {
@@ -211,10 +214,7 @@ class _HomeState extends State<Home> {
                 ? GestureDetector(
               onTap: _pickImage,
 
-              child: Container(
-                child:
-                const Text('+',style: TextStyle(fontSize: 40),),
-              ),
+              child: const Text('+',style: TextStyle(fontSize: 40),),
             )
                 : SizedBox(
               height: 120,
@@ -287,6 +287,12 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  void preferecnias() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('email'));
+    print(prefs.getString('password'));
   }
 }
 
