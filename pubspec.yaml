@@ -41,6 +41,9 @@ dependencies:
   permission_handler: ^11.3.1
   open_file: ^3.0.0
   image_cropper: ^6.0.0
+  firebase_auth: ^5.1.0
+  firebase_core: ^3.1.0
+  shared_preferences: ^2.2.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
