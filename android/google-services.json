@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "197805006587",
+    "project_id": "pdfscanner-9922e",
+    "storage_bucket": "pdfscanner-9922e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197805006587:android:30baa509c8b6ad91ec9a5e",
+        "android_client_info": {
+          "package_name": "com.pdfscanner.pdfscanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvyelWhEaJ3OfUuYsyS2Rq-fq8NHLQx5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
