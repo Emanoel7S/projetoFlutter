@@ -15,7 +15,6 @@ class Authenticar extends StatefulWidget {
 class _AuthenticarState extends State<Authenticar> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _checkAndSignInWithToken();
   }
@@ -26,42 +25,46 @@ class _AuthenticarState extends State<Authenticar> {
     String? password = prefs.getString('password');
     print('check');
 
+    await Future.delayed(Duration(seconds: 2)); // Delay for smoother transition
+
     if (email != null && password != null) {
+      print('$email e $password');
       await _logandoDadosSalvos(email, password);
     } else {
-      print('dadosnulo');
+      print('$email else $password');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+      );
     }
   }
 
   Future<void> _logandoDadosSalvos(String email, String password) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? email = prefs.getString('email');
-      String? password = prefs.getString('password');
-
-      if (email != null && password != null) {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Home()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Login()),
-        );
-      }
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuário não encontrado')),
         );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Login()),
+        );
       } else if (e.code == 'wrong-password') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Senha incorreta')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Login()),
         );
       }
     }
@@ -71,20 +74,24 @@ class _AuthenticarState extends State<Authenticar> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body:Container(
+        body: Container(
           color: Colors.blue,
           child: Center(
-            child: SizedBox(
-              height: 100,
-              width: 100,
-              child: Image.asset('assets/images/logo1.png', fit: BoxFit.cover),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Image.asset('assets/images/logo1.png', fit: BoxFit.cover),
+                ),
+                const SizedBox(height: 20),
+                const CircularProgressIndicator(), // Progress indicator
+              ],
             ),
           ),
-        )
-
+        ),
       ),
     );
-
-
   }
 }
