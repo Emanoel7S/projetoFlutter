@@ -40,9 +40,9 @@ class _CadastroState extends State<Cadastro> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                child: Image.asset('assets/images/logo3.png', fit: BoxFit.cover),
                 width: 300,
                 height: 300,
+                child: Image.asset('assets/images/logo3.png', fit: BoxFit.cover),
               ),
               CustomEmailField(
                 controller: _emailController,
