@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pdfscanner/screens/login.dart';
 import 'package:pdfscanner/widget/text_form_field.dart';
 
+import '../widget/elevated_button.dart';
+
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
 
@@ -42,67 +44,48 @@ class _CadastroState extends State<Cadastro> {
                 width: 300,
                 height: 300,
               ),
-              TextFormField(
+              CustomEmailField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Digite seu email',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Por favor, insira um email válido';
-                  }
-                  return null;
-                },
+                labelText: 'Email',
+                hintText: 'Digite seu email',
+                emptyErrorMessage: 'Por favor, insira seu email',
+                invalidErrorMessage: 'Por favor, insira um email válido',
+                icon: Icons.email,
+                obscure: false,
+                email: true,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomEmailField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  hintText: 'Digite sua senha',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha';
-                  }
-                  if (value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
-                  return null;
-                },
+                labelText: 'Senha',
+                hintText: 'Digite sua senha',
+                emptyErrorMessage: 'Por favor, insira sua senha',
+                invalidErrorMessage: 'A senha deve ter pelo menos 6 caracteres',
+                icon: Icons.check_circle_outline,
+                obscure: true,
+                email: false,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomEmailField(
                 controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirmar Senha',
-                  hintText: 'Confirme sua senha',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, confirme sua senha';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'As senhas não coincidem';
-                  }
-                  return null;
-                },
+                labelText: 'Confirmar Senha',
+                hintText: 'Confirme sua senha',
+                emptyErrorMessage: 'Por favor, confirme sua senha',
+                invalidErrorMessage: 'As senhas não coincidem',
+                icon: Icons.check_circle_outline,
+                obscure: true,
+                email: false,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
+              CustomElevatedButton(
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _createUserWithEmailAndPassword();
                   }
                 },
-                child: const Text('Cadastrar'),
+                text: 'Cadastrar',
               ),
+
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {

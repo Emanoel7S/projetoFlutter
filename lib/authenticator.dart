@@ -25,7 +25,7 @@ class _AuthenticarState extends State<Authenticar> {
     String? password = prefs.getString('password');
     print('check');
 
-    await Future.delayed(Duration(seconds: 2)); // Delay for smoother transition
+    await Future.delayed(const Duration(seconds: 1)); // Delay for smoother transition
 
     if (email != null && password != null) {
       print('$email e $password');

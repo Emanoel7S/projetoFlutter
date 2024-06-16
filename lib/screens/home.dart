@@ -1,5 +1,7 @@
 
+
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -27,36 +29,8 @@ class _HomeState extends State<Home> {
     super.initState();
     _path = '';
     preferecnias();
-
     _requestPermissions();
   }
-  // Future<void> _pickAndCropImage() async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  //
-  //   if (pickedFile != null) {
-  //     CroppedFile? croppedFile = await ImageCropper().cropImage(
-  //       sourcePath: pickedFile.path,
-  //
-  //       aspectRatioPresets: [
-  //
-  //         CropAspectRatioPreset.square,
-  //         CropAspectRatioPreset.ratio3x2,
-  //         CropAspectRatioPreset.original,
-  //         CropAspectRatioPreset.ratio4x3,
-  //         CropAspectRatioPreset.ratio16x9
-  //       ],
-  //
-  //
-  //     );
-  //
-  //     if (croppedFile != null) {
-  //       // Faça algo com a imagem cortada, como exibição ou salvamento
-  //       // Neste exemplo, apenas imprimimos o caminho da imagem
-  //       print('Caminho da imagem cortada: ${croppedFile.path}');
-  //     }
-  //   }
-  // }
 
   Future<void> _requestPermissions() async {
     await [
@@ -66,25 +40,20 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _pickImage() async {
-    try{
+    try {
       final pickedFile = await _picker.pickImage(source: ImageSource.camera);
 
       setState(() {
         if (pickedFile != null) {
           _pickedFile = pickedFile;
-          // _images.add(File(pickedFile.path));
         } else {
           return;
         }
       });
-      // print('print nao chega  se for null');
       await _cropImage();
-
-    }catch(e){
+    } catch (e) {
       print('erro ao tirar foto $e');
     }
-
-
   }
 
   void _removeImage(int index) {
@@ -129,19 +98,15 @@ class _HomeState extends State<Home> {
         _path = file.path;
         _isCreatingPdf = false;
       });
-      print("Caminho do arquivo PDF: ${file.path}"); // Adicionado para imprimir o caminho do arquivo PDF
       await file.writeAsBytes(await pdf.save());
     } catch (e) {
       print(e);
     }
   }
 
-
-
-
   Future<void> _openPdf(String path) async {
     if (path.isEmpty) {
-      if(!mounted) return; // nao faz nada quase contexto nao esdteja montado
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nenhum PDF disponível para abrir.')),
       );
@@ -150,13 +115,13 @@ class _HomeState extends State<Home> {
 
     final result = await OpenFile.open(path);
     if (result.type != ResultType.done) {
-      if(!mounted) return; // nao faz nada quase contexto nao esdteja montado
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao abrir o PDF: ${result.message}')),
       );
     }
   }
+
   Future<void> _cropImage() async {
     if (_pickedFile != null) {
       final croppedFile = await ImageCropper().cropImage(
@@ -166,133 +131,196 @@ class _HomeState extends State<Home> {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
+            toolbarColor: Colors.blueAccent,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: false,
-
           ),
         ],
       );
       if (croppedFile != null) {
         setState(() {
           _images.add(File(croppedFile.path));
-          _pickedFile=null;
+          _pickedFile = null;
           _croppedFile = croppedFile;
-
         });
       }
     }
   }
+
   Future<void> _uploadImage() async {
-    try{
-    final pickedFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _pickedFile = pickedFile;
-      });
-      await _cropImage();
-
-
-    }}catch(e){
+    try {
+      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _pickedFile = pickedFile;
+        });
+        await _cropImage();
+      }
+    } catch (e) {
       print('erro ao selecionar imagem $e');
     }
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PDF Scanner App'),
+        title: const Text('PDF Scanner App'),
+        backgroundColor: Colors.blueAccent,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _images.isEmpty
-                ? GestureDetector(
-              onTap: _pickImage,
-
-              child: const Text('+',style: TextStyle(fontSize: 40),),
-            )
-                : SizedBox(
-              height: 120,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _images
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Stack(
-                        children: [
-                          Image.file(entry.value),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () => _removeImage(entry.key),
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                color: Colors.red,
-                                child: Icon(
-                                  Icons.close,
-                                  color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: _images.isEmpty
+                    ? GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add_a_photo,
+                      size: 50,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                )
+                    : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _images
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          children: [
+                            Image.file(
+                              entry.value,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(entry.key),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  color: Colors.red,
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                      .toList(),
+                    )
+                        .toList(),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _uploadImage,
-              child: const Text('Selecionar fotos'),
-            ),ElevatedButton(
-              onPressed: _pickImage,
-              child: const Text('tirar foto'),
-            ),
-
-            Visibility(
-              visible: _images.isNotEmpty,
-              child: ElevatedButton(
-                onPressed: _createPdf,
-                child: _isCreatingPdf
-                    ? const CircularProgressIndicator() // Feedback visual de criação
-                    : const Text('Criar PDF'),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _uploadImage,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Selecionar fotos'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
               ),
-            ),
-            // ElevatedButton(
-            //   onPressed: _cropImage ,
-            //   child: _isCreatingPdf
-            //       ? CircularProgressIndicator() // Feedback visual de criação
-            //       : const Text('teste'),
-            // ),
-            ElevatedButton(
-              onPressed: () {
-                _openPdf(_path);
-              },
-              child: const Text('Abrir PDF'),
-            ),
-          ],
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Tirar foto'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _images.isNotEmpty ? _createPdf : null,
+                icon: _isCreatingPdf
+                    ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+                    : const Icon(Icons.picture_as_pdf),
+                label: const Text('Criar PDF'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: () {
+                  _openPdf(_path);
+                },
+                icon: const Icon(Icons.open_in_browser),
+                label: const Text('Abrir PDF'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+              // SpeedDial(
+              //
+              //
+              //
+              //   animatedIcon: AnimatedIcons.menu_close, // ícone animado
+              //   children: [
+              //     SpeedDialChild(
+              //         foregroundColor:Colors.blueAccent,
+              //         child: Icon(Icons.add_a_photo), // ícone para o botão adicional
+              //         label: 'Capturar foto', // etiqueta opcional
+              //         onTap: () async{
+              //           await _pickImage();
+              //           // Ação para o botão adicional
+              //         }
+              //     ),
+              //
+              //     SpeedDialChild(
+              //         foregroundColor: Colors.blueAccent,
+              //         child: Icon(Icons.photo_library), // ícone para o botão acima
+              //         label: 'Selecionar fotos', // etiqueta opcional
+              //         onTap: () async{
+              //           await _uploadImage();
+              //           // Ação para o botão acima
+              //         }
+              //     ),
+              //   ],
+              // ),
+
+
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void preferecnias() async{
+  void preferecnias() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString('email'));
     print(prefs.getString('password'));
   }
 }
-
