@@ -49,24 +49,16 @@ class _AuthenticarState extends State<Authenticar> {
         context,
         MaterialPageRoute(builder: (context) => Home()),
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+    }  catch (e) {
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuário não encontrado')),
+           SnackBar(content: Text('$e')),
         );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Login()),
         );
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Senha incorreta')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Login()),
-        );
-      }
+
     }
   }
 
