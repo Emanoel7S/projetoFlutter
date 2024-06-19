@@ -1,28 +1,33 @@
 
+import 'package:flutter/foundation.dart'; // para usar compute
 
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image/image.dart' as img;
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home> {
+class HomeState extends State<Home> {
   final ImagePicker _picker = ImagePicker();
   List<File> _images = [];
   late String _path;
   bool _isCreatingPdf = false;
   XFile? _pickedFile;
-  CroppedFile? _croppedFile;
-
+  // CroppedFile? _croppedFile;
+  bool criado =false;
   @override
   void initState() {
     super.initState();
@@ -61,8 +66,18 @@ class _HomeState extends State<Home> {
     });
   }
 
+
+
+
+
+
+
   Future<void> _createPdf() async {
+
     try {
+      setState(() {
+        criado =true;
+      });
       if (_images.isEmpty || _isCreatingPdf) return;
 
       setState(() {
@@ -72,13 +87,28 @@ class _HomeState extends State<Home> {
       final pdf = pw.Document();
 
       for (var imageFile in _images) {
-        final image = pw.MemoryImage(imageFile.readAsBytesSync());
+        final originalImage = img.decodeImage(imageFile.readAsBytesSync())!;
+
+        final saturatedImage = img.adjustColor(
+          originalImage,
+          saturation: 0.0,
+        );
+
+        final saturatedImageBytes = img.encodeJpg(saturatedImage);
+
+        final image = pw.MemoryImage(saturatedImageBytes);
 
         pdf.addPage(
           pw.Page(
+            pageFormat: PdfPageFormat(
+              saturatedImage.width.toDouble(),
+              saturatedImage.height.toDouble(),
+            ),
             build: (pw.Context context) {
-              return pw.Center(
-                child: pw.Image(image),
+              return pw.FullPage(
+
+                ignoreMargins: true,
+                child: pw.Image(image, fit: pw.BoxFit.cover),
               );
             },
           ),
@@ -88,20 +118,74 @@ class _HomeState extends State<Home> {
       final directory = await getDownloadsDirectory();
       final file = File('${directory?.path}/document.pdf');
       await file.writeAsBytes(await pdf.save());
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('PDF salvo em ${file.path}')),
+          );
+        }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF salvo em ${file.path}')),
-      );
 
       setState(() {
         _path = file.path;
         _isCreatingPdf = false;
+        criado =false;
       });
-      await file.writeAsBytes(await pdf.save());
     } catch (e) {
       print(e);
     }
   }
+
+
+  // Future<void> _createPdf() async {
+  //   setState(() {
+  //     criado=true;
+  //   });
+  //   try {
+  //     if (_images.isEmpty || _isCreatingPdf) return;
+  //
+  //     setState(() {
+  //       _isCreatingPdf = true;
+  //     });
+  //
+  //     final pdf = pw.Document();
+  //
+  //     for (var imageFile in _images) {
+  //       final imageBytes = imageFile.readAsBytesSync();
+  //       final image = pw.MemoryImage(imageBytes);
+  //
+  //       pdf.addPage(
+  //         pw.Page(
+  //           pageFormat: PdfPageFormat(
+  //             image.width!.toDouble(),
+  //             image.height!.toDouble(),
+  //           ),
+  //           build: (pw.Context context) {
+  //             return pw.FullPage(
+  //               ignoreMargins: true,
+  //               child: pw.Image(image, fit: pw.BoxFit.cover),
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     }
+  //
+  //     final directory = await getDownloadsDirectory();
+  //     final file = File('${directory?.path}/document.pdf');
+  //     await file.writeAsBytes(await pdf.save());
+  //
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('PDF salvo em ${file.path}')),
+  //     );
+  //
+  //     setState(() {
+  //       _path = file.path;
+  //       _isCreatingPdf = false;
+  //       criado=false;
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   Future<void> _openPdf(String path) async {
     if (path.isEmpty) {
@@ -141,7 +225,7 @@ class _HomeState extends State<Home> {
         setState(() {
           _images.add(File(croppedFile.path));
           _pickedFile = null;
-          _croppedFile = croppedFile;
+          // _croppedFile = croppedFile;
         });
       }
     }
@@ -165,10 +249,11 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Scanner App'),
+        title: const Text('Fatecanner'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: Center(
+      body: criado?const Center(child: CircularProgressIndicator()):
+      Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -184,7 +269,7 @@ class _HomeState extends State<Home> {
                       color: Colors.blueAccent.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.add_a_photo,
                       size: 50,
                       color: Colors.blueAccent,
@@ -255,7 +340,7 @@ class _HomeState extends State<Home> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _images.isNotEmpty ? _createPdf : null,
+                onPressed : _images.isNotEmpty ?  _createPdf : null,
                 icon: _isCreatingPdf
                     ? const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

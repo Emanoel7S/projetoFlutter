@@ -16,13 +16,13 @@ class CustomElevatedButton extends StatelessWidget {
       onPressed: onPressed,
 
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.blue, // Cor de fundo do botão
+        foregroundColor: Colors.blue,
 
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        elevation: 5, // Sombra do botão
+        elevation: 5,
       ),
       child: Text(
         text,

@@ -115,6 +115,7 @@ class _CadastroState extends State<Cadastro> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      if(!mounted)return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Login()),
