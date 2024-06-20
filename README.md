@@ -1,6 +1,8 @@
 # pdfscanner
 
-A new Flutter project.
+
+Um novo projeto Flutter simples para digitalizar documentos e convertê-los em PDF.
+
 
 ## Getting Started
 
